@@ -10,7 +10,6 @@ class User(AbstractUser):
     '''
     USER = 'user'
     ADMIN = 'admin'
-    GUEST = 'guest'
     ROLE_CHOICES = [
         (USER, 'user'),
         (ADMIN, 'admin'),
@@ -68,3 +67,31 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Subscription(models.Model):
+    '''Модель подписок'''
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Подписчик')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='На кого подписываются'
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_subscription',
+            )
+        ]
+
+    def __str__(self):
+        return str(self.id)
