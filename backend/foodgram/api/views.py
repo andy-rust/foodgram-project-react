@@ -1,7 +1,10 @@
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from recipes.generate_pdf import generate_pdf
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                            ShoppingCart, Tag)
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -183,3 +186,17 @@ class RecipeModelViewSet(ModelViewSet):
         if request.method == 'DELETE' and recipe_is_favorited.exists():
             recipe_is_favorited.delete()
             return Response(status=status.HTTP_200_OK)
+
+    @action(methods=['GET'],
+            detail=False,)
+    def download_shopping_cart(self, request):
+        """Скачавание PDF файла со списком покупок"""
+        user = request.user
+        qweryset = IngredientInRecipe.objects.filter(
+            recipe__shopping_cart__user=user
+        )
+        qweryset_sort = qweryset.values('ingredient__name',
+                                        'ingredient__measurement_unit',
+                                        ).annotate(
+            quantity=Sum('amount')).order_by()
+        return generate_pdf(qweryset_sort)
