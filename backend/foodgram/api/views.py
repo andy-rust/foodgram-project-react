@@ -168,11 +168,18 @@ class RecipeModelViewSet(ModelViewSet):
 
         if request.method == 'POST':
             if not recipe_is_favorited.exists():
-                serializer = FavoriteRecipeSerializer(data={'user': user.id, 'recipe': recipe.id})
+                serializer = FavoriteRecipeSerializer(
+                    data={'user': user.id, 'recipe': recipe.id}
+                )
                 serializer.is_valid()
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response({'errors': 'Данный рецепт уже в избранном'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+            return Response(
+                {'errors': 'Данный рецепт уже в избранном'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         if request.method == 'DELETE' and recipe_is_favorited.exists():
             recipe_is_favorited.delete()
             return Response(status=status.HTTP_200_OK)
