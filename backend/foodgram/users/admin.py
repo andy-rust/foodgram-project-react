@@ -4,9 +4,6 @@ from .models import Subscription, User
 
 
 class UserAdmin(admin.ModelAdmin):
-    '''Отображаем модель юзеров
-    фильтрация по email и username
-    '''
     list_display = (
         'id',
         'username',

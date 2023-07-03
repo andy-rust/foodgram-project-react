@@ -1,7 +1,7 @@
-import base64
-
-from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -10,21 +10,9 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
-from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from users.models import Subscription, User
 
-
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-        return super().to_internal_value(data)
-
-    def to_representation(self, file):
-        return '/media/' + super().to_representation(file)
+from .fields import Base64ImageField
 
 
 class UsersSerializer(UserSerializer):
@@ -135,7 +123,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         for tag in data:
             if tag in tags_list:
                 raise serializers.ValidationError(
-                    {'Тег должен быть уникальным'}
+                    {'Тэг должен быть уникальным'}
                 )
             tags_list.append(tag)
         return data
