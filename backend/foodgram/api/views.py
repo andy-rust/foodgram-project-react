@@ -2,15 +2,6 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.generate_pdf import generate_pdf
-from recipes.models import (
-    Favorite,
-    Ingredient,
-    IngredientInRecipe,
-    Recipe,
-    ShoppingCart,
-    Tag,
-)
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -21,6 +12,16 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+
+from recipes.generate_pdf import generate_pdf
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    IngredientInRecipe,
+    Recipe,
+    ShoppingCart,
+    Tag,
+)
 from users.models import Subscription, User
 
 from .serializers import (
@@ -127,7 +128,6 @@ class RecipeModelViewSet(ModelViewSet):
         recipe_model = serializer_class.Meta.model.objects.filter(
             user=user, recipe=recipe
         )
-        # recipe_model = Recipe.objects.filter(user=user, recipe=recipe)
 
         if self.request.method == 'POST':
             serializer = serializer_class(
@@ -207,11 +207,11 @@ class RecipeModelViewSet(ModelViewSet):
     def download_shopping_cart(self, request):
         """Скачавание PDF файла со списком покупок"""
         user = request.user
-        qweryset = IngredientInRecipe.objects.filter(
+        queryset = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=user
         )
-        qweryset_sort = qweryset.values('ingredient__name',
+        queryset_sort = queryset.values('ingredient__name',
                                         'ingredient__measurement_unit',
                                         ).annotate(
             quantity=Sum('amount')).order_by()
-        return generate_pdf(qweryset_sort)
+        return generate_pdf(queryset_sort)

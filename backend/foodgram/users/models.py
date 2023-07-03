@@ -5,9 +5,7 @@ from .validators import USERNAME_VALIDATOR
 
 
 class User(AbstractUser):
-    '''Кастомная модель юзера
-    Поля email, username, first_name, last_name, password обязательны,
-    '''
+    '''Кастомная модель юзера'''
     USER = 'user'
     ADMIN = 'admin'
     ROLE_CHOICES = [
