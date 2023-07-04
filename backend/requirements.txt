@@ -48,3 +48,4 @@ sqlparse==0.4.3
 tomli==2.0.1
 uritemplate==4.1.1
 urllib3==1.26.15
+reportlab==4.0.4
