@@ -23,6 +23,7 @@ from recipes.models import (
     Tag,
 )
 from users.models import Subscription, User
+from .methods import post_or_delete_method
 
 from .serializers import (
     FavoriteRecipeSerializer,
@@ -77,7 +78,7 @@ class UsersModelViewSet(UserViewSet):
             Subscription.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        if request.method == 'DELETE':
+        else:
             if not is_subscribed:
                 return Response({'У вас нет подписки на этого автора'},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -122,85 +123,24 @@ class RecipeModelViewSet(ModelViewSet):
             return RecipeListSerializer
         return RecipeCreateSerializer
 
-    def post_delete(self, pk, serializer_class):
-        recipe = get_object_or_404(Recipe, pk=pk)
-        user = self.request.user
-        recipe_model = serializer_class.Meta.model.objects.filter(
-            user=user, recipe=recipe
-        )
-
-        if self.request.method == 'POST':
-            serializer = serializer_class(
-                data={'user': user.id, 'recipe': recipe.id},
-                context={'request': self.request}
-            )
-            serializer.is_valid()
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        if self.request.method == 'DELETE':
-            if not recipe_model.exists():
-                return Response(
-                    {'Такого рецепта не существует'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            recipe_model.delete()
-            return Response(status=status.HTTP_200_OK)
-
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, **kwargs):
-        recipe = get_object_or_404(Recipe, id=kwargs['pk'])
-        user = get_object_or_404(User, id=request.user.id)
-        recipe_is_in_shopping_cart = ShoppingCart.objects.filter(
-            user=user.id,
-            recipe=recipe
-        )
-        if request.method == 'POST' and (
-            not recipe_is_in_shopping_cart.exists()
-        ):
-            serializer = ShoppingCartSerializer(
-                data={'user': user.id, 'recipe': recipe.id}
-            )
-            serializer.is_valid()
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == 'DELETE' and recipe_is_in_shopping_cart.exists():
-            recipe_is_in_shopping_cart.delete()
-            return Response(status=status.HTTP_200_OK)
+        response = post_or_delete_method(
+            ShoppingCart, ShoppingCartSerializer, request, **kwargs)
+        return response
 
     @action(
         detail=False,
         methods=['POST', 'DELETE'],
-        url_path=r'(?P<id>[\d]+)/favorite',
+        url_path=r'(?P<pk>[\d]+)/favorite',
         url_name='favorite',
         permission_classes=[IsAuthenticated, ]
     )
     def favorite(self, request, **kwargs):
-        recipe = get_object_or_404(Recipe, id=kwargs['id'])
-        user = get_object_or_404(User, id=request.user.id)
-        recipe_is_favorited = Favorite.objects.filter(
-            user=user.id,
-            recipe=recipe
-        )
-
-        if request.method == 'POST':
-            if not recipe_is_favorited.exists():
-                serializer = FavoriteRecipeSerializer(
-                    data={'user': user.id, 'recipe': recipe.id}
-                )
-                serializer.is_valid()
-                serializer.save()
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED
-                )
-            return Response(
-                {'errors': 'Данный рецепт уже в избранном'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        if request.method == 'DELETE' and recipe_is_favorited.exists():
-            recipe_is_favorited.delete()
-            return Response(status=status.HTTP_200_OK)
+        response = post_or_delete_method(
+            Favorite, FavoriteRecipeSerializer, request, **kwargs)
+        return response
 
     @action(methods=['GET'],
             detail=False,)
