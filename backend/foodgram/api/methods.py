@@ -1,7 +1,9 @@
 from django.shortcuts import get_object_or_404
-from recipes.models import Recipe
+
 from rest_framework import status
 from rest_framework.response import Response
+
+from recipes.models import Recipe
 from users.models import User
 
 
@@ -28,7 +30,9 @@ def post_or_delete_method(cart_or_favortie_model,
         else:
             return Response({'error': 'Рецепт уже добавлен'},
                             status=status.HTTP_400_BAD_REQUEST)
+    if recipe_is_in_shopping_cart_or_favorite.exists():
+        recipe_is_in_shopping_cart_or_favorite.delete()
+        return Response(status=status.HTTP_200_OK)
     else:
-        if recipe_is_in_shopping_cart_or_favorite.exists():
-            recipe_is_in_shopping_cart_or_favorite.delete()
-            return Response(status=status.HTTP_200_OK)
+        return Response({'error': 'Рецепт не в избранном'},
+                        status=status.HTTP_400_BAD_REQUEST)

@@ -11,7 +11,6 @@ from recipes.models import (
     Tag,
 )
 from users.models import Subscription, User
-
 from .fields import Base64ImageField
 
 
@@ -157,7 +156,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             recipe.tags.clear()
             recipe.tags.set(tags)
 
-        recipe.save()
         return recipe
 
     def to_representation(self, instance):

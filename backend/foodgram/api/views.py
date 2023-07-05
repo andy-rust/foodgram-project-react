@@ -24,7 +24,6 @@ from recipes.models import (
 )
 from users.models import Subscription, User
 from .methods import post_or_delete_method
-
 from .serializers import (
     FavoriteRecipeSerializer,
     IngredientSerializer,
@@ -78,10 +77,9 @@ class UsersModelViewSet(UserViewSet):
             Subscription.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        else:
-            if not is_subscribed:
-                return Response({'У вас нет подписки на этого автора'},
-                                status=status.HTTP_400_BAD_REQUEST)
+        if not is_subscribed:
+            return Response({'У вас нет подписки на этого автора'},
+                            status=status.HTTP_400_BAD_REQUEST)
         Subscription.objects.filter(user=user, author=author).delete()
         return Response(
             {'Вы отписались от этого автора'}, status=status.HTTP_200_OK
