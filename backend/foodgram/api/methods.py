@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -33,6 +32,5 @@ def post_or_delete_method(cart_or_favortie_model,
     if recipe_is_in_shopping_cart_or_favorite.exists():
         recipe_is_in_shopping_cart_or_favorite.delete()
         return Response(status=status.HTTP_200_OK)
-    else:
-        return Response({'error': 'Рецепт не в избранном'},
-                        status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': 'Рецепт не в избранном'},
+                    status=status.HTTP_400_BAD_REQUEST)
