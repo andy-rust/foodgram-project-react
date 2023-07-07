@@ -1,18 +1,62 @@
 version: '3.8'
-name: foooood
 services:
 
   frontend:
+    image: raisenameerror/foodgram_frontend:latest
     build:
       context: ../frontend
       dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
+
+  db:
+    image: postgres
+    env_file:
+      - ../backend/foodgram/foodgram/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - postgres_net
+
+  backend:
+    image: raisenameerror/foodgram_backend:latest
+    restart: always
+    env_file:
+      - ../backend/foodgram/foodgram/.env
+    volumes:
+      - static_value:/app/static/
+      - media_value:/app/media/
+      - redoc:/app/api/redoc/
+    depends_on:
+      - db
+    networks:
+      - postgres_net
+      - backend
+
   nginx:
-    image: nginx:1.19.3
+    image: nginx
     ports:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
+      - static_value:/app/static/
+      - media_value:/app/media/
+      - redoc:/usr/share/nginx/api/docs/
+    networks:
+      - backend
+
+volumes:
+  static_value:
+  media_value:
+  postgres_data:
+  redoc:
+  pgadmin_volume:
+
+networks:
+  backend:
+    driver: bridge
+  postgres_net:
+    driver: bridge
