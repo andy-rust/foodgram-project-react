@@ -26,9 +26,9 @@ def post_or_delete_method(cart_or_favortie_model,
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'error': 'Рецепт уже добавлен'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Рецепт уже добавлен'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
     if recipe_is_in_shopping_cart_or_favorite.exists():
         recipe_is_in_shopping_cart_or_favorite.delete()
         return Response(status=status.HTTP_200_OK)
