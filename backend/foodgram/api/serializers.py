@@ -175,7 +175,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeListSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    author = UsersSerializer(read_only=True)
     ingredients = IngredientInRecipeSerializer(
         many=True, source='IngredientInRecipe'
     )
