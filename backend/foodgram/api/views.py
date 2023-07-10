@@ -2,7 +2,7 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (
@@ -24,6 +24,7 @@ from recipes.models import (
 )
 from users.models import Subscription, User
 from .methods import post_or_delete_method
+from .filters import IngredientFilter, RecipeFilter
 from .serializers import (
     FavoriteRecipeSerializer,
     IngredientSerializer,
@@ -45,10 +46,10 @@ class TagModelViewSet(ReadOnlyModelViewSet):
 
 class IngredientModelViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
+    pagination_class = None
     serializer_class = IngredientSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
-    filter_backends = (DjangoFilterBackend, )
-    search_fields = ('^name',)
+    filterset_class = IngredientFilter
 
 
 class UsersModelViewSet(UserViewSet):
@@ -97,24 +98,13 @@ class UsersModelViewSet(UserViewSet):
 
 
 class RecipeModelViewSet(ModelViewSet):
+    queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend, )
+    filterset_class = RecipeFilter
     permission_classes = (IsAuthenticatedOrReadOnly, )
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
     http_method_names = ['get', 'post', 'patch', 'delete']
-
-    def get_queryset(self):
-        user = self.request.user
-
-        queryset = Recipe.objects.all()
-        if self.request.query_params.getlist('tags'):
-            list = self.request.query_params.getlist('tags')
-            queryset = queryset.filter(tags__slug__in=list).distinct()
-        if self.request.query_params.get('is_favorited') == '1':
-            queryset = queryset.filter(favorites=user)
-        if self.request.query_params.get('is_in_shopping_cart') == '1':
-            queryset = queryset.filter(shoppings=user)
-        return queryset
 
     def get_serializer_class(self):
         if self.action in SAFE_METHODS:
