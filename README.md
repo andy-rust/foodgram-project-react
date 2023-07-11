@@ -54,7 +54,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-### Развертывание на локальном сервере c помощью Docker
+### Развертывание проекта на сервере c помощью Docker
 
 - Установите на сервере `docker` и `docker-compose`.
 
