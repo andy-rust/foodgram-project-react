@@ -58,7 +58,7 @@ python manage.py runserver
 
 - Установите на сервере `docker` и `docker-compose`.
 
-- Создайте файл `/backend/foodgram/.env`.
+- Перейдите в директорию `/backend/foodgram/` и создайте там файл `/.env`.
 ```
 DB_NAME=postgres
 POSTGRES_USER=postgres
@@ -81,5 +81,5 @@ docker build -t username/foodgram_backend:latest backend/
 - docker-compose exec backend python manage.py collectstatic --no-input
 ```
 
-- Заполните базу данных ингредиентами и тегами
+- Заполните базу данных ингредиентами
 `docker exec -it infra-backend-1 python manage.py loaddata ingredients.json`.
