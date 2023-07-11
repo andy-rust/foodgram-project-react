@@ -25,6 +25,7 @@ from recipes.models import (
 from users.models import Subscription, User
 from .methods import post_or_delete_method
 from .filters import IngredientFilter, RecipeFilter
+from .pagination import CustomPagination
 from .serializers import (
     FavoriteRecipeSerializer,
     IngredientSerializer,
@@ -55,7 +56,7 @@ class IngredientModelViewSet(ReadOnlyModelViewSet):
 class UsersModelViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
     @action(methods=['POST', 'DELETE'], detail=True,
@@ -102,7 +103,7 @@ class RecipeModelViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
     permission_classes = (IsAuthenticatedOrReadOnly, )
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
     pagination_class.page_size = 6
     http_method_names = ['get', 'post', 'patch', 'delete']
 
