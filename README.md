@@ -73,12 +73,13 @@ docker build -t username/foodgram_frontend:latest frontend/
 docker build -t username/foodgram_backend:latest backend/
 ```
 
-- Исполните команду `docker-compose up -d --buld`. находясь в директории infra
+- Перейдите в директорию `infra/` и по очереди выполните следующие команды
+```
+- docker-compose up -d --buld
+- docker-compose exec backend python manage.py migrate
+- docker-compose exec backend python manage.py createsuperuser
+- docker-compose exec backend python manage.py collectstatic --no-input
+```
 
-- Совершите миграцию `docker-compose exec backend python manage.py migrate`.
-
-- Создайте суперпользователя `docker-compose exec backend python manage.py createsuperuser`.
-
-- Соберите статику `docker-compose exec backend python manage.py collectstatic --no-input`.
-
-- Заполните базу данных ингредиентами и тегами `docker exec -it infra-backend-1 python manage.py loaddata ingredients.json`.
+- Заполните базу данных ингредиентами и тегами
+`docker exec -it infra-backend-1 python manage.py loaddata ingredients.json`.
