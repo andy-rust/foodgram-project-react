@@ -6,7 +6,7 @@ services:
     volumes:
       - /var/lib/postgresql/data/
     env_file:
-      - ./.env
+      - ../backend/foodgram/.env
 
   backend:
     image: raisenameerror/foodgram_backend:latest
