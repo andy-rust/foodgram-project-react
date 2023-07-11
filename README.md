@@ -53,3 +53,32 @@ python manage.py migrate
 ```
 python manage.py runserver
 ```
+
+### Развертывание на локальном сервере c помощью Docker
+
+- Установите на сервере `docker` и `docker-compose`.
+
+- Создайте файл `/backend/foodgram/.env`.
+```
+DB_NAME=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+DB_HOST=db
+DB_PORT=5432
+TOKEN='ключ Django'
+```
+- Сбилдить образы frontend и backend находясь в корневой директории проекта
+```
+docker build -t username/foodgram_frontend:latest frontend/
+docker build -t username/foodgram_backend:latest backend/
+```
+
+- Исполните команду `docker-compose up -d --buld`.
+
+- Совершите миграцию `docker-compose exec backend python manage.py migrate`.
+
+- Создайте суперпользователя `docker-compose exec backend python manage.py createsuperuser`.
+
+- Соберите статику `docker-compose exec backend python manage.py collectstatic --no-input`.
+
+- Заполните базу данных ингредиентами и тегами `docker exec -it infra-backend-1 python manage.py loaddata ingredients.json`.
