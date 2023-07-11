@@ -73,7 +73,7 @@ docker build -t username/foodgram_frontend:latest frontend/
 docker build -t username/foodgram_backend:latest backend/
 ```
 
-- Исполните команду `docker-compose up -d --buld`.
+- Исполните команду `docker-compose up -d --buld`. находясь в дерриктории infra
 
 - Совершите миграцию `docker-compose exec backend python manage.py migrate`.
 
